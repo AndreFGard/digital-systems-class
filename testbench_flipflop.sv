@@ -128,3 +128,44 @@ module tb_counter_to_4;
 endmodule
 
 
+
+module tb_flipFlop_storage_4b;
+    reg set;
+    reg [3:0] origin;
+    wire [3:0] dest;
+
+    // Instantiate the flipFlop_storage_4b module
+    flipFlop_storage_4b uut (
+        .set(set),
+        .origin(origin),
+        .dest(dest)
+    );
+
+    // Clock generation
+    initial begin
+        set = 0;
+        forever #5 set = ~set;  // Toggle 'set' every 5 time units
+    end
+
+    // Test stimulus
+    initial begin
+        // Initialize inputs
+        origin = 4'b0000;
+        
+        // Monitor changes to the signals
+        $monitor("Time: %0d set: %b origin: %b dest: %b", $time, set, origin, dest);
+
+        // Apply test vectors
+        #10 origin = 4'b1010;  // Change origin to 1010 after 10 time units
+        #10 origin = 4'b0101;  // Change origin to 0101 after another 10 time units
+        #10 origin = 4'b1111;  // Change origin to 1111 after another 10 time units
+        #10 origin = 4'b0000;  // Change origin to 0000 after another 10 time units
+
+        #30;  // Wait 30 time units before finishing simulation
+        $finish;
+    end
+endmodule
+
+
+
+
