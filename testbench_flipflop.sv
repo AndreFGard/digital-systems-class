@@ -169,3 +169,59 @@ endmodule
 
 
 
+module tb_flipFlop_counter_with_storage_4b;
+    reg clk;
+    reg save;
+    wire [3:0] counter;
+    wire [3:0] storage_counter;
+    wire divided_clock;
+
+    // Instantiate the flipFlop_counter_with_storage_4b module
+    flipFlop_counter_with_storage_4b uut (
+        .clk(clk),
+        .save(save),
+        .counter(counter),
+        .storage_counter(storage_counter)
+    );
+    flipFlopDivider_2 helllll(
+            .clk(clk),
+            .out_d(divided_clock)
+                );
+    // Clock generation
+    initial begin
+        clk = 0;
+        forever #5 clk = ~clk;  // Toggle 'clk' every 5 time units
+    end
+
+    // Test stimulus
+    initial begin
+        // Initialize inputs
+        save = 0;
+
+        // Initial delay for 160 clock cycles
+        #800;  // Wait for 160 clock cycles (5 time units per cycle * 160 = 800 time units)
+        $dumpfile("test.vcd");$dumpvars;
+
+        
+
+
+        // Monitor changes to the signals
+        $monitor("Time: %0d clk: %b save: %b counter: %b storage_counter: %b", $time, divided_clock, save, counter, storage_counter);
+
+        // Apply test vectors
+        #15 save = 1;  // Enable save after 10 time units
+        #10 save = 0;  // Disable save after another 10 time units
+        #10 save = 1;  // Enable save after another 10 time units
+        #10 save = 0;  // Disable save after another 10 time units
+        #10 save = 1;  // Enable save after 10 time units
+        #10 save = 0;  // Disable save after another 10 time units
+        #10 save = 1;  // Enable save after another 10 time units
+        #10 save = 0;  // Disable save after another 10 time units
+        #10 save = 1;  // Enable save after 10 time units
+        #10 save = 0;  // Disable save after another 10 time units
+        #10 save = 1;  // Enable save after another 10 time units
+        #10 save = 0;  // Disable save after another 10 time units
+        #50;  // Wait 50 time units before finishing simulation
+        $finish;
+    end
+endmodule
