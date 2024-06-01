@@ -92,3 +92,39 @@ module tb_divider_2;
         $finish;
     end
 endmodule
+
+
+
+module tb_counter_to_4;
+    reg D;
+    reg clk;
+    wire Q;
+    wire [3:0] stor; // Change stor from reg to wire
+
+    // Instantiate the flip-flop
+    flipFlop_counter_4b uut (
+        .clk(clk),
+        .bye(stor)
+    );
+
+    // Clock generation
+    initial begin
+        clk = 0;
+        forever #5 clk = ~clk;  // Clock period of 10 time units
+    end
+
+    // Monitor changes to the signals
+    initial begin
+        //#60
+        forever #5 $display("%t   clk %b: %b", $time,clk,stor);
+    end
+
+
+    // Stop after x time units
+    initial begin
+        #150;
+        $finish;
+    end
+endmodule
+
+
