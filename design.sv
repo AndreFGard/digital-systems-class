@@ -45,27 +45,42 @@ module flipFlopDivider_2(input clk, output out_d);
 
 endmodule
 
-module flipFlop_counter_4b(input clk, output [3:0] bye);
+module flipFlop_counter_4b(input clk, output [3:0] stor);
     wire fpa_w, fpb_w, fpc_w, fpd_w;
-    reg [3:0] stor;
 
     flipFlopDivider_2 fpA(
         .clk(clk),
         .out_d(fpa_w)
     );
 
-    assign bye[0] = ~fpa_w;
+    assign stor[0] = ~fpa_w;
     
 
     flipFlopDivider_2 fpB(
         .clk(fpa_w),
         .out_d(fpb_w)
     );
-    assign bye[1] = ~fpb_w;
+    assign stor[1] = ~fpb_w;
 
     flipFlopDivider_2 fpC(fpb_w, fpc_w);
-    assign bye[2] = ~fpc_w;
+    assign stor[2] = ~fpc_w;
     flipFlopDivider_2 fpD (fpc_w, fpd_w);
-    assign bye[3] = ~fpd_w;
+    assign stor[3] = ~fpd_w;
+
+endmodule
+
+module flipFlop_storage_4b(input set, input [3:0] origin, output [3:0] dest);
+    flipFlopD_rise fp_A(.clk(set), .D(origin[0]), .Q(dest[0]));
+    flipFlopD_rise fp_B(.clk(set), .D(origin[1]), .Q(dest[1]));
+    flipFlopD_rise fp_C(.clk(set), .D(origin[2]), .Q(dest[2]));
+    flipFlopD_rise fp_D(.clk(set), .D(origin[3]), .Q(dest[3]));
+endmodule
+
+
+module flipFlop_counter_with_storage_4b(input clk, input save,
+                        output [3:0] counter, output [3:0] storage_counter);
+
+    flipFlop_counter_4b cnt_fp(clk, counter);
+    flipFlop_storage_4b saver_fp(save, counter, storage_counter);
 
 endmodule
