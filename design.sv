@@ -45,4 +45,27 @@ module flipFlopDivider_2(input clk, output out_d);
 
 endmodule
 
-module flipflop
+module flipFlop_counter_4b(input clk, output [3:0] bye);
+    wire fpa_w, fpb_w, fpc_w, fpd_w;
+    reg [3:0] stor;
+
+    flipFlopDivider_2 fpA(
+        .clk(clk),
+        .out_d(fpa_w)
+    );
+
+    assign bye[0] = ~fpa_w;
+    
+
+    flipFlopDivider_2 fpB(
+        .clk(fpa_w),
+        .out_d(fpb_w)
+    );
+    assign bye[1] = ~fpb_w;
+
+    flipFlopDivider_2 fpC(fpb_w, fpc_w);
+    assign bye[2] = ~fpc_w;
+    flipFlopDivider_2 fpD (fpc_w, fpd_w);
+    assign bye[3] = ~fpd_w;
+
+endmodule
