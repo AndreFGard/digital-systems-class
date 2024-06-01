@@ -23,3 +23,26 @@ module full_adder(input a, b, cin, output sum, carry_out);
   assign carry_out = f_carry | sec_carry;
 endmodule
 
+module flipFlopD_rise(input D, input clk, output reg Q);
+    always @(posedge clk) begin
+        Q <= D;
+    end
+endmodule
+
+module flipFlopDivider_2(input clk, output out_d);
+    reg k = 0;
+
+    // Instantiate flipFlopD_rise
+    flipFlopD_rise ff1 (
+        .D(k),
+        .clk(clk),
+        .Q(out_d)
+    );
+
+    always @(posedge clk) begin
+        k <= ~k; // Toggle k on every rising edge of clk
+    end
+
+endmodule
+
+module flipflop
