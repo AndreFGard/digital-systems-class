@@ -80,7 +80,17 @@ endmodule
 module flipFlop_counter_with_storage_4b(input clk, input save,
                         output [3:0] counter, output [3:0] storage_counter);
 
-    flipFlop_counter_4b cnt_fp(clk, counter);
-    flipFlop_storage_4b saver_fp(save, counter, storage_counter);
+    flipFlop_counter_4b cnt_fp(.clk(clk), .stor(counter));
+    flipFlop_storage_4b storage_er(.set(save),.origin(counter),.dest(storage_counter));
+endmodule
+
+
+module divide_2_flipFlop_counter_with_storage_4b(input clk, input save,
+                        output [3:0] counter, output [3:0] storage_counter);
+    wire divided_clock;
+    //please note that the storage has a delay of one clock for some reason
+    flipFlopDivider_2 divider(clk, divided_clock);
+
+    flipFlop_counter_with_storage_4b stuff(divided_clock, save, counter, storage_counter);
 
 endmodule
