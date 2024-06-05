@@ -134,7 +134,7 @@ module tb_flipFlop_storage_4b;
     reg [3:0] origin;
     wire [3:0] dest;
 
-    // Instantiate the flipFlop_storage_4b module
+
     flipFlop_storage_4b uut (
         .set(set),
         .origin(origin),
@@ -144,7 +144,7 @@ module tb_flipFlop_storage_4b;
     // Clock generation
     initial begin
         set = 0;
-        forever #5 set = ~set;  // Toggle 'set' every 5 time units
+        forever #5 set = ~set;  
     end
 
     // Test stimulus
@@ -156,10 +156,10 @@ module tb_flipFlop_storage_4b;
         $monitor("Time: %0d set: %b origin: %b dest: %b", $time, set, origin, dest);
 
         // Apply test vectors
-        #10 origin = 4'b1010;  // Change origin to 1010 after 10 time units
-        #10 origin = 4'b0101;  // Change origin to 0101 after another 10 time units
-        #10 origin = 4'b1111;  // Change origin to 1111 after another 10 time units
-        #10 origin = 4'b0000;  // Change origin to 0000 after another 10 time units
+        #10 origin = 4'b1010;  
+        #10 origin = 4'b0101;  
+        #10 origin = 4'b1111;  
+        #10 origin = 4'b0000;  
 
         #30;  // Wait 30 time units before finishing simulation
         $finish;
@@ -190,16 +190,16 @@ module tb_flipFlop_counter_with_storage_4b;
     // Clock generation
     initial begin
         clk = 0;
-        forever #5 clk = ~clk;  // Toggle 'clk' every 5 time units
+        forever #5 clk = ~clk;  // Toggle 'clk' 
     end
 
-    // Test stimulus
+
     initial begin
-        // Initialize inputs
+
         save = 0;
 
-        // Initial delay for 160 clock cycles
-        #800;  // Wait for 160 clock cycles (5 time units per cycle * 160 = 800 time units)
+        // Initial delay  
+        #800;  /
         $dumpfile("test.vcd");$dumpvars;
 
         
@@ -209,19 +209,20 @@ module tb_flipFlop_counter_with_storage_4b;
         $monitor("Time: %0d clk: %b save: %b counter: %b storage_counter: %b", $time, divided_clock, save, counter, storage_counter);
 
         // Apply test vectors
-        #15 save = 1;  // Enable save after 10 time units
-        #10 save = 0;  // Disable save after another 10 time units
-        #10 save = 1;  // Enable save after another 10 time units
-        #10 save = 0;  // Disable save after another 10 time units
-        #10 save = 1;  // Enable save after 10 time units
-        #10 save = 0;  // Disable save after another 10 time units
-        #10 save = 1;  // Enable save after another 10 time units
-        #10 save = 0;  // Disable save after another 10 time units
-        #10 save = 1;  // Enable save after 10 time units
-        #10 save = 0;  // Disable save after another 10 time units
-        #10 save = 1;  // Enable save after another 10 time units
-        #10 save = 0;  // Disable save after another 10 time units
-        #50;  // Wait 50 time units before finishing simulation
+        // an special delay is needed because we must make sure that save and clk are synced 
+        #15 save = 1;  // Enable save after 15 time units
+        #10 save = 0;  
+        #10 save = 1;  
+        #10 save = 0;  
+        #10 save = 1;  
+        #10 save = 0;  
+        #10 save = 1;  
+        #10 save = 0;  
+        #10 save = 1;  
+        #10 save = 0;  
+        #10 save = 1;  
+        #10 save = 0;  
+        #50;  
         $finish;
     end
 endmodule
