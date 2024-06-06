@@ -94,3 +94,74 @@ module divide_2_flipFlop_counter_with_storage_4b(input clk, input save,
     flipFlop_counter_with_storage_4b stuff(divided_clock, save, counter, storage_counter);
 
 endmodule
+
+module timer(clk,reset,count, done);
+  parameter trigger = 7;
+  input clk,reset;
+  output reg [3:0] count;
+  output reg done;
+
+  always@(posedge clk) 
+  begin
+    if(reset) begin 
+      count <= 0;
+      done <= 0;
+    end
+    else if (count == trigger )
+        done <= 1;
+    else      
+      count <= count + 1;
+  end
+endmodule :timer
+
+
+module fsm_traffic_light(input clk, input button, output reg [2:0] lights);
+//dont spam the button :)
+parameter SIZE = 3;
+parameter GREEN = 3'b111; parameter WAITING_R = 3'b010; parameter RED = 3'b000;
+reg [SIZE:-1] state;
+
+reg resettimer; reg [3:0] _; reg timerDone;
+timer eggtimer(clk,button,_, timerDone);
+always @ (posedge clk) begin
+    //resettimer <= !button;
+    case (state)
+        WAITING_R: begin
+            //waiting for the light to get GREEN
+            lights <= WAITING_R; //this light would actually be red
+
+            if (timerDone) begin
+                state <= GREEN;
+                resettimer <= 1;
+            end
+            else resettimer <= 0;
+
+            end
+
+
+        RED: begin 
+            //continue here until someone presses the button
+            lights <= RED; 
+            if (button) begin
+                state <= WAITING_R;
+                resettimer <= 1;
+                
+            end
+        end
+
+        GREEN: begin
+            lights <= GREEN; 
+            //the not resettimer is needed to make green last
+            // instead of stopping instantaneously
+            if (timerDone & ~resettimer) begin
+                state <= RED;
+            end
+            else resettimer <= 0;
+        end
+
+        default: state <= RED;
+    endcase
+
+end
+endmodule
+
