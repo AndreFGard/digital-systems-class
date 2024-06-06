@@ -165,3 +165,30 @@ always @ (posedge clk) begin
 end
 endmodule
 
+module simple_traffic_light_fsm(input clk, input button, output reg [2:0] lights);
+//dont spam the button :)
+parameter SIZE = 3;
+parameter GREEN = 3'b111; parameter WAITING_R = 3'b010; parameter RED = 3'b000;
+reg [SIZE:-1] state;
+always @ (posedge clk) begin
+    case(state)
+            RED: begin 
+                //continue here until someone presses the button
+                lights <= RED; 
+                if (button) begin
+                    state <= GREEN;
+                end
+            end
+
+            GREEN: begin
+                lights <= GREEN; 
+                if (~button) begin 
+                    state <= RED;
+                end
+            end
+
+            default: state <= RED;
+        endcase
+end
+
+endmodule
