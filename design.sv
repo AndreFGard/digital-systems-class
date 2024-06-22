@@ -192,3 +192,36 @@ always @ (posedge clk) begin
 end
 
 endmodule
+
+module onehot_bcd_encoder(input [9:0] switch, output [3:0] y, output idle);
+	assign y = (switch == 10'b0000_0000_01) ? 4'b0000 :
+          	(switch == 10'b0000_0000_10) ? 4'b0001 :
+          	(switch == 10'b0000_0001_00) ? 4'b0010 :
+          	(switch == 10'b0000_0010_00) ? 4'b0011 :
+          	(switch == 10'b0000_0100_00) ? 4'b0100 :
+          	(switch == 10'b0000_1000_00) ? 4'b0101 :
+          	(switch == 10'b0001_0000_00) ? 4'b0110 :
+          	(switch == 10'b0010_0000_00) ? 4'b0111 :
+          	(switch == 10'b0100_0000_00) ? 4'b1000 :
+          	(switch == 10'b1000_0000_00) ? 4'b1001 :
+    	4'bxxxx;
+endmodule
+
+module displayer_i_guess(
+  input [3:0] y,
+  output [6:0] alphabet
+);
+
+  assign alphabet = (y == 4'b0000) ? 7'b1110111 :
+                	(y == 4'b0001) ? 7'b0110000 :
+                	(y == 4'b0010) ? 7'b1101101 :
+                	(y == 4'b0011) ? 7'b1111001 :
+                	(y == 4'b0100) ? 7'b0110010 :
+                	(y == 4'b0101) ? 7'b1011011 :
+                	(y == 4'b0110) ? 7'b1011111 :
+                	(y == 4'b0111) ? 7'b1110000 :
+                	(y == 4'b1000) ? 7'b1111111 :
+                	(y == 4'b1001) ? 7'b1111011 :
+                	7'b0000000;
+
+endmodule
