@@ -225,3 +225,58 @@ module displayer_i_guess(
                 	7'b0000000;
 
 endmodule
+
+//ALARM FSM
+module alarm(input clk, input sens1, sens2, input rest, output reg occurence, output reg alarm_l);
+  parameter QUIET = 3'b001;
+  parameter OCCURRENCE = 3'b010;
+  parameter ALARMING = 3'b100;
+ 
+  reg [2:0] state; reg [2:0] nextstate;
+  always @ (posedge clk) begin
+    
+	case(state)
+ 	 
+  	QUIET: begin
+    	if (sens1 & sens2) begin
+      	state <= ALARMING;
+    	end else state <= QUIET;
+   	 
+  	 
+     	 alarm_l <= 0;
+    	occurence <= 0;
+   	 
+  	end
+ 	 
+  	OCCURRENCE: begin
+    	if (rest) begin
+      	state <= QUIET;
+    	end
+    	else begin
+      	if (sens1 & sens2) begin
+        	state <= ALARMING;
+      	end
+    	end
+          	 
+     	 alarm_l <= 0;
+    	occurence <= 1;
+   	 
+  	end
+ 	 
+  	ALARMING:begin
+    	if (~rest) begin
+      	if (sens1 || sens2) begin
+     		 state <= ALARMING;
+      	end
+      	else state <= OCCURRENCE;
+    	end
+    	else state <= QUIET;
+          	 
+     	 alarm_l <= 1;
+    	occurence <= 1;
+   	 
+  	end
+  	default: state <= QUIET;
+	endcase
+  end
+endmodule
