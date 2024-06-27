@@ -1,3 +1,13 @@
+`define ZERO_ARRAY_OUT \
+    out[0] <= 4'b0000; \
+    out[1] <= 4'b0000; \
+    out[2] <= 4'b0000; \
+    out[3] <= 4'b0000; \
+    out[4] <= 4'b0000; \
+    out[5] <= 4'b0000; \
+    out[6] <= 4'b0000; \
+    out[7] <= 4'b0000;
+
 // Code your design here
 module half_adder_s(
     input a,b,
@@ -281,18 +291,51 @@ module alarm(input clk, input sens1, sens2, input rest, output reg occurence, ou
   end
 endmodule
 
-module mux_8_1(input [7:0] inp, input [2:0] sel, output byebye);
+module mux_8_1(
+    input [7:0][3:0] inp,
+    input [2:0] sel,
+    output [3:0] byebye
+);
 
-assign byebye = (sel == 0) ? inp[0]:
-  (sel == 1) ? inp[1]:
-  (sel == 2) ? inp[2]:
-  (sel == 3) ? inp[3]:
-  (sel == 4) ? inp[4]:
-  (sel == 5) ? inp[5]:
-  (sel == 6) ? inp[6]:
-  (sel == 7) ? inp[7]:
-  0;
+    assign byebye = (sel == 3'b000) ? inp[0] :
+                    (sel == 3'b001) ? inp[1] :
+                    (sel == 3'b010) ? inp[2] :
+                    (sel == 3'b011) ? inp[3] :
+                    (sel == 3'b100) ? inp[4] :
+                    (sel == 3'b101) ? inp[5] :
+                    (sel == 3'b110) ? inp[6] :
+                    (sel == 3'b111) ? inp[7] :
+                    4'b0000; // Default case to 0
+
 endmodule
+module clocked_mux_8_1(
+    input wire clk,
+    input wire [7:0][3:0] inp,
+    input wire [2:0] sel,
+    output reg [3:0] byebye
+);
+
+    always @(negedge clk) begin
+        case (sel)
+            3'b000: byebye <= inp[0];
+            3'b001: byebye <= inp[1];
+            3'b010: byebye <= inp[2];
+            3'b011: byebye <= inp[3];
+            3'b100: byebye <= inp[4];
+            3'b101: byebye <= inp[5];
+            3'b110: byebye <= inp[6];
+            3'b111: byebye <= inp[7];
+            default: byebye <= 4'b0000; // Default case to 0
+        endcase
+    end
+
+endmodule
+
+
+
+
+
+
 module demux_2_1(input clk,
     input [2:0] a,
     input sel,
@@ -333,4 +376,77 @@ module summer_with_one_input(input clk, input control, input [2:0] a, output reg
     endcase
   end
 endmodule
-  
+
+
+
+module demux_8_1(
+    input clk,
+    input [3:0] inp,
+    input [2:0] sel,
+    output reg [7:0][3:0] out 
+);
+
+    always @(posedge clk) begin
+        out = {4'h0, 4'h0, 4'h0, 4'h0, 4'h0, 4'h0, 4'h0, 4'h0};
+
+        case (sel)
+            3'b000: out[0] <= inp;
+            3'b001: out[1] <= inp;
+            3'b010: out[2] <= inp;
+            3'b011: out[3] <= inp;
+            3'b100: out[4] <= inp;
+            3'b101: out[5] <= inp;
+            3'b110: out[6] <= inp;
+            3'b111: out[7] <= inp;
+        endcase
+    end
+endmodule
+
+module instruction_decoder(input clk, input [7:0][3:0] inp, input [8:0] instruct, output wire  [7:0][3:0]out  );
+    //the minimum delay is 3, because the circuit itself takes 3 clocks to display something
+
+    parameter DISPLAYING = 4'h2; parameter RECEIVING = 4'h0;
+
+    reg [3:0] chosen; reg [3:0] current;
+    reg [7:0][3:0]buffer ;
+    reg demuxclk;
+    reg [3:0] counter;
+
+
+    initial begin
+         counter = 0; demuxclk = 0; 
+    end
+
+    assign out = buffer; //i still gotta figure out some way to zero out everything else but the important part
+    // without using 8 lines to do so
+    
+    mux_8_1 mux(inp,instruct[2:0],chosen); //choose the input
+    demux_8_1 demux(demuxclk, current, instruct[5:3], buffer); //store the chosen in it's appropriate place
+    always @(posedge clk) begin
+        $display("%d|%d: chosen inp N%d=%d, curr %d chosen out %d=",clk, counter, instruct[2:0], chosen, current, instruct[5:3], buffer[instruct[5:3]]);
+        case (counter)
+            RECEIVING: begin
+                $display("beginning");
+                current = chosen; 
+                counter = instruct[8:6];
+                //out = {4'h0, 4'h0, 4'h0, 4'h0, 4'h0, 4'h0, 4'h0, 4'h0};
+                
+            end
+            DISPLAYING: begin 
+                counter = counter - 1;
+                demuxclk = 1;
+            end
+
+            default: begin 
+                counter = counter -1;
+                demuxclk = 0;
+            end
+
+        endcase 
+    end
+
+
+    
+    
+
+endmodule
