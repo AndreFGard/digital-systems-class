@@ -280,3 +280,57 @@ module alarm(input clk, input sens1, sens2, input rest, output reg occurence, ou
 	endcase
   end
 endmodule
+
+module mux_8_1(input [7:0] inp, input [2:0] sel, output byebye);
+
+assign byebye = (sel == 0) ? inp[0]:
+  (sel == 1) ? inp[1]:
+  (sel == 2) ? inp[2]:
+  (sel == 3) ? inp[3]:
+  (sel == 4) ? inp[4]:
+  (sel == 5) ? inp[5]:
+  (sel == 6) ? inp[6]:
+  (sel == 7) ? inp[7]:
+  0;
+endmodule
+module demux_2_1(input clk,
+    input [2:0] a,
+    input sel,
+    output reg [2:0] c1,
+    output reg [2:0] c2
+);
+
+  always @(clk) begin
+        case (sel)
+            1'b0: begin
+                c1 = a;
+            end
+            1'b1: begin
+                c2 = a;
+            end
+        endcase
+    end
+
+endmodule
+
+
+module summer_with_one_input(input clk, input control, input [2:0] a, output reg [3:0] c);
+ 
+  reg [2:0] stored;
+  reg [2:0] b;
+ 
+  demux_2_1 j(clk,a,control,stored,b);
+ 
+  always @(posedge clk) begin
+    $display("%b ctrl %d stored and %d b %d sum",control, stored,b,c);
+    case (control)
+      1'b0: begin
+        c = 13;//armazenando
+      end
+      1'b1:begin
+        c = a + stored;
+      end
+    endcase
+  end
+endmodule
+  
