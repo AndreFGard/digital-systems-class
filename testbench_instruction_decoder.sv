@@ -11,6 +11,8 @@ module instruction_decoder_tester();
         //out = 32'h00000000;
         instruct = 9'b000000000;
         clk = 0;
+
+
     end
 
     initial begin
@@ -18,12 +20,12 @@ module instruction_decoder_tester();
     end
 
     initial begin 
-        instruct[2:0] = 4; //selecionar input
+        #20 instruct[2:0] = 4; //selecionar input
         instruct[5:3] = 6; //selecionar output
         inp[4] = 7;
         instruct[8:6] = 7;
 
-        #70        instruct[2:0] = 4; //selecionar input
+        #100        instruct[2:0] = 4; //selecionar input
         instruct[5:3] = 6; //selecionar output
         inp[4] = 9;
         instruct[8:6] =4; 
@@ -35,11 +37,14 @@ module instruction_decoder_tester();
         inp[4] = 13;
         instruct[8:6] =3; 
 
-        #120 $finish;
+        #120  $finish;
     end
 
     always @(clk) begin 
-
+       // $dumpfile("ttt.vcd");
+//$dumpvars;
+        //        $display("%d|counter: chosen_in  N%d=%d, next x toprint x chosen_ out %d=",
+        //clk, instruct[2:0], inp[instruct[2:0]], instruct[5:3], out[instruct[5:3]]);
         //$display("sel_in %d, sel_out %d, inp %d, output:", instruct[2:0], instruct[5:3], inp[instruct[2:0]], out[instruct[5:3]]);
     end;
 

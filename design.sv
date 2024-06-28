@@ -242,7 +242,7 @@ module alarm(input clk, input sens1, sens2, input rest, output reg occurence, ou
   parameter OCCURRENCE = 3'b010;
   parameter ALARMING = 3'b100;
  
-  reg [2:0] state; reg [2:0] nextstate;
+  reg [2:0] state; reg [2:0] toprintstate;
   always @ (posedge clk) begin
     
 	case(state)
@@ -379,6 +379,11 @@ endmodule
 
 
 
+
+
+
+    
+
 module demux_8_1(
     input clk,
     input [3:0] inp,
@@ -386,8 +391,8 @@ module demux_8_1(
     output reg [7:0][3:0] out 
 );
 
-    always @(posedge clk) begin
-        out = {4'h0, 4'h0, 4'h0, 4'h0, 4'h0, 4'h0, 4'h0, 4'h0};
+    always @(*) begin
+        //out = {4'h0, 4'h0, 4'h0, 4'h0, 4'h0, 4'h0, 4'h0, 4'h0};
 
         case (sel)
             3'b000: out[0] <= inp;
@@ -405,33 +410,45 @@ endmodule
 module instruction_decoder(input clk, input [7:0][3:0] inp, input [8:0] instruct, output wire  [7:0][3:0]out  );
     //the minimum delay is 3, because the circuit itself takes 3 clocks to display something
 
-    parameter DISPLAYING = 4'h2; parameter RECEIVING = 4'h0;
+    parameter DISPLAYING = 4'h1; parameter RECEIVING = 4'h0;
 
-    reg [3:0] chosen; reg [3:0] current;
+    reg [3:0] chosen_in; reg [3:0] current;
     reg [7:0][3:0]buffer ;
     reg demuxclk;
     reg [3:0] counter;
+    reg [3:0] demux_buffer;
+    reg[3:0] toprint; reg[3:0] next;
 
 
     initial begin
-         counter = 0; demuxclk = 0; 
+         counter = 2; demuxclk = 0; 
     end
 
-    assign out = buffer; //i still gotta figure out some way to zero out everything else but the important part
-    // without using 8 lines to do so
+    assign out = buffer; //I've gotta figure out some way to zero 
+    // out everything else but the selected slot
+    // in less than 8 lines
     
-    mux_8_1 mux(inp,instruct[2:0],chosen); //choose the input
-    demux_8_1 demux(demuxclk, current, instruct[5:3], buffer); //store the chosen in it's appropriate place
+    mux_8_1 mux(inp,instruct[2:0],chosen_in); //choose the input
+    demux_8_1 demux(clk, toprint, instruct[5:3], buffer); //store the chosen_in in it's appropriate place
+    //demux_8_1 juanmux(clk, demux_buffer, instruct[5:3], out);
     always @(posedge clk) begin
-        $display("%d|%d: chosen inp N%d=%d, curr %d chosen out %d=",clk, counter, instruct[2:0], chosen, current, instruct[5:3], buffer[instruct[5:3]]);
+        
+        $display("x|%d: chosen_in  N%d=%d, next %d toprint %d chosen_ out %d=",
+        counter, instruct[2:0], chosen_in, next, toprint, instruct[5:3], buffer[instruct[5:3]]);
+        
+        //wait instruct[5:3] clocks before 
         case (counter)
+            //counter = 0
             RECEIVING: begin
                 $display("beginning");
-                current = chosen; 
+                toprint = next;
+                next = chosen_in; 
                 counter = instruct[8:6];
+
                 //out = {4'h0, 4'h0, 4'h0, 4'h0, 4'h0, 4'h0, 4'h0, 4'h0};
                 
             end
+            // counter = 2
             DISPLAYING: begin 
                 counter = counter - 1;
                 demuxclk = 1;
@@ -444,9 +461,5 @@ module instruction_decoder(input clk, input [7:0][3:0] inp, input [8:0] instruct
 
         endcase 
     end
-
-
-    
-    
 
 endmodule
